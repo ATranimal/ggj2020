@@ -9,6 +9,8 @@ let drawerContainer;
 let cableConnectionGroup;
 let cableHoleGroup;
 
+let currentlyDraggedObject;
+
 let cableHoleConnections = [
   [1, 2],
   [4, 6]
@@ -31,6 +33,7 @@ export default class Demo extends Phaser.Scene {
 
   create() {
     this.initiateDrawer();
+    this.initiateDragListener();
   }
 
   initiateDrawer() {
@@ -45,12 +48,12 @@ export default class Demo extends Phaser.Scene {
 
     // Structure: x, y, id, connected, connectedTo
     const cableHoleCoords = [
-      [56, 128, 1, true, 2],
-      [128, 128, 2, true, 1],
-      [56, 192, 3, false, undefined],
-      [128, 192, 4, true, 6],
-      [256, 32, 5, false, undefined],
-      [256, 94, 6, true, 4]
+      [128, 128, 1, true, 2],
+      [196, 128, 2, true, 1],
+      [128, 192, 3, false, undefined],
+      [196, 192, 4, true, 6],
+      [320, 32, 5, false, undefined],
+      [320, 94, 6, true, 4]
     ];
 
     cableHoleCoords.forEach(coord => {
@@ -62,18 +65,16 @@ export default class Demo extends Phaser.Scene {
       cableHole.setData("isConnected", coord[3]);
       cableHole.setData("connectedTo", coord[4]);
 
-      cableHole.on("pointerup", function(pointer, x, y, event) {
-        cableHole.setData("isConnected", !cableHole.getData("isConnected"));
-      });
-
       if (cableHole.getData("isConnected")) {
         cableHole.setTint(50);
       }
 
+      this.input.setDraggable(cableHole);
+
       drawerContainer.add(cableHole);
     });
 
-    this.redrawCableConnections();
+    this.redrawCableConnections(this);
 
     pullupDrawer.on("pointerup", pointer => {
       drawerOpen = !drawerOpen;
@@ -86,7 +87,56 @@ export default class Demo extends Phaser.Scene {
     });
   }
 
-  redrawCableConnections() {
+  initiateDragListener() {
+    this.input.on("dragstart", function(pointer, gameObject) {
+      currentlyDraggedObject = gameObject;
+    });
+
+    // this.input.on("dragend", function(pointer, gameObject) {
+    //   console.log(`dragEnd: ${gameObject.getData("holeNumber")}`);
+    // });
+
+    const redrawCables = this.redrawCableConnections;
+    const self = this;
+
+    cableHoleGroup.getChildren().forEach(hole => {
+      hole.on("pointerup", function(pointer) {
+        if (
+          currentlyDraggedObject !== null &&
+          currentlyDraggedObject.getData("isConnected")
+        ) {
+          const oldHoleNumber = currentlyDraggedObject.getData("holeNumber");
+          const newHoleNumber = this.getData("holeNumber");
+
+          const oldConnection = cableHoleConnections.find(connection =>
+            connection.includes(oldHoleNumber)
+          );
+
+          if (
+            !(
+              oldConnection.includes(oldHoleNumber) &&
+              oldConnection.includes(newHoleNumber)
+            )
+          ) {
+            const [existingConnectionHole] = oldConnection.filter(
+              hole => hole !== oldHoleNumber
+            );
+
+            cableHoleConnections.push([newHoleNumber, existingConnectionHole]);
+            cableHoleConnections = cableHoleConnections.filter(
+              connection => connection != oldConnection
+            );
+
+            redrawCables(self);
+          }
+        }
+
+        currentlyDraggedObject = null;
+      });
+    });
+  }
+
+  redrawCableConnections(self) {
     cableConnectionGroup.getChildren().forEach(function(connection) {
       connection.destroy();
     });
@@ -101,7 +151,7 @@ export default class Demo extends Phaser.Scene {
         hole => hole.getData("holeNumber") == connection[1]
       );
 
-      let line = this.add.line(
+      let line = self.add.line(
         startCableHole.x,
         startCableHole.y,
         0,
