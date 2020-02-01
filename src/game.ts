@@ -5,6 +5,15 @@ const SCREEN_WIDTH = 960;
 
 let drawerOpen = false;
 
+let drawerContainer;
+let cableConnectionGroup;
+let cableHoleGroup;
+
+let cableHoleConnections = [
+  [1, 2],
+  [4, 6]
+];
+
 export default class Demo extends Phaser.Scene {
   constructor() {
     super("demo");
@@ -14,6 +23,10 @@ export default class Demo extends Phaser.Scene {
     this.load.image("pullup-drawer", "assets/pullup-drawer.png");
     this.load.image("drawer-background", "assets/drawer-background.png");
     this.load.image("cable-hole", "assets/cable-hole.png");
+
+    cableConnectionGroup = this.add.group();
+    cableHoleGroup = this.add.group();
+    drawerContainer = this.add.container(SCREEN_WIDTH / 2, SCREEN_HEIGHT);
   }
 
   create() {
@@ -21,8 +34,6 @@ export default class Demo extends Phaser.Scene {
   }
 
   initiateDrawer() {
-    const drawerContainer = this.add.container(SCREEN_WIDTH / 2, SCREEN_HEIGHT);
-
     const pullupDrawer = this.add
       .sprite(0, -8, "pullup-drawer")
       .setInteractive();
@@ -42,13 +53,6 @@ export default class Demo extends Phaser.Scene {
       [256, 94, 6, true, 4]
     ];
 
-    let cableHoleConnections = [
-      [1, 2],
-      [4, 6]
-    ];
-
-    let cableHoleGroup = this.add.group();
-
     cableHoleCoords.forEach(coord => {
       let cableHole = cableHoleGroup
         .create(+coord[0], +coord[1], "cable-hole")
@@ -60,8 +64,6 @@ export default class Demo extends Phaser.Scene {
 
       cableHole.on("pointerup", function(pointer, x, y, event) {
         cableHole.setData("isConnected", !cableHole.getData("isConnected"));
-        console.log(cableHole.getData("isConnected"));
-        console.log(`x: ${cableHole.x}, y: ${cableHole.y}`);
       });
 
       if (cableHole.getData("isConnected")) {
@@ -71,7 +73,23 @@ export default class Demo extends Phaser.Scene {
       drawerContainer.add(cableHole);
     });
 
-    let cableConnections = this.add.group();
+    this.redrawCableConnections();
+
+    pullupDrawer.on("pointerup", pointer => {
+      drawerOpen = !drawerOpen;
+      this.tweens.add({
+        targets: drawerContainer,
+        y: drawerOpen ? "-=344" : "+=344",
+        ease: "Power1",
+        duration: 120
+      });
+    });
+  }
+
+  redrawCableConnections() {
+    cableConnectionGroup.getChildren().forEach(function(connection) {
+      connection.destroy();
+    });
 
     cableHoleConnections.forEach(connection => {
       const arrayOfHoles = cableHoleGroup.getChildren() as Phaser.GameObjects.Sprite[];
@@ -81,10 +99,6 @@ export default class Demo extends Phaser.Scene {
       );
       const [endCableHole] = arrayOfHoles.filter(
         hole => hole.getData("holeNumber") == connection[1]
-      );
-
-      console.log(
-        `x1: ${startCableHole.x}, y1: ${startCableHole.y}, x2: ${endCableHole.x}, y2: ${endCableHole.y}`
       );
 
       let line = this.add.line(
@@ -100,18 +114,8 @@ export default class Demo extends Phaser.Scene {
 
       line.setOrigin(0);
 
-      cableConnections.add(line);
+      cableConnectionGroup.add(line);
       drawerContainer.add(line);
-    });
-
-    pullupDrawer.on("pointerup", pointer => {
-      drawerOpen = !drawerOpen;
-      this.tweens.add({
-        targets: drawerContainer,
-        y: drawerOpen ? "-=344" : "+=344",
-        ease: "Power1",
-        duration: 120
-      });
     });
   }
 }
