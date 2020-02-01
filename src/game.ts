@@ -1,47 +1,53 @@
-import 'phaser';
+import "phaser";
 
-export default class Demo extends Phaser.Scene
-{
-    constructor ()
-    {
-        super('demo');
-    }
+const SCREEN_HEIGHT = 540;
+const SCREEN_WIDTH = 960;
 
-    preload ()
-    {
-        this.load.image('logo', 'assets/phaser3-logo.png');
-        this.load.image('libs', 'assets/libs.png');
-        this.load.glsl('bundle', 'assets/plasma-bundle.glsl.js');
-        this.load.glsl('stars', 'assets/starfields.glsl.js');
-    }
+let drawerOpen = false;
 
-    create ()
-    {
-        this.add.shader('RGB Shift Field', 0, 0, 800, 600).setOrigin(0);
+export default class Demo extends Phaser.Scene {
+  constructor() {
+    super("demo");
+  }
 
-        this.add.shader('Plasma', 0, 412, 800, 172).setOrigin(0);
+  preload() {
+    this.load.image("pullup-drawer", "assets/pullup-drawer.png");
+    this.load.image("drawer-background", "assets/drawer-background.png");
+  }
 
-        this.add.image(400, 300, 'libs');
+  create() {
+    const drawerGroup = this.add.group();
 
-        const logo = this.add.image(400, 70, 'logo');
+    const pullupDrawer = drawerGroup
+      .create(480, SCREEN_HEIGHT - 8, "pullup-drawer")
+      .setInteractive();
 
+    const drawerBackground = drawerGroup.create(
+      480,
+      SCREEN_HEIGHT + 172,
+      "drawer-background"
+    );
+
+    pullupDrawer.on("pointerup", pointer => {
+      drawerOpen = !drawerOpen;
+      drawerGroup.getChildren().forEach(child => {
         this.tweens.add({
-            targets: logo,
-            y: 350,
-            duration: 1500,
-            ease: 'Sine.inOut',
-            yoyo: true,
-            repeat: -1
-        })
-    }
+          targets: child,
+          y: drawerOpen ? "-=344" : "+=344",
+          ease: "Power1",
+          duration: 120
+        });
+      });
+    });
+  }
 }
 
 const config = {
-    type: Phaser.AUTO,
-    backgroundColor: '#125555',
-    width: 800,
-    height: 600,
-    scene: Demo
+  type: Phaser.AUTO,
+  backgroundColor: "#125555",
+  width: SCREEN_WIDTH,
+  height: SCREEN_HEIGHT,
+  scene: Demo
 };
 
 const game = new Phaser.Game(config);
