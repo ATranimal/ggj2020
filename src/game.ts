@@ -58,12 +58,18 @@ export default class Demo extends Phaser.Scene {
   }
 
   preload() {
+    game.scale.autoCenter = 1;
+
     this.load.image("pullup-drawer", "assets/pullup-drawer.png");
     this.load.image("drawer-background", "assets/drawer-background.png");
     this.load.image("cable-hole", "assets/cable-hole.png");
     this.load.image("knob", "assets/knob.png");
-    this.load.image("pimple", "assets/pimple.png");
     this.load.image("light", "assets/light.png");
+    this.load.image("lighton", "assets/lighton.png");
+
+    for (let i = 1; i < 6; i++) {
+      this.load.image(`pimple${i}`, `assets/pimple ${i}.png`);
+    }
 
     // Startup Cycle
     for (let i = 1; i < 10; i++) {
@@ -183,10 +189,10 @@ export default class Demo extends Phaser.Scene {
       [312, 200, 2],
       [256, 260, 3],
       [312, 260, 4],
-      [426, 32, 5],
-      [426, 94, 6],
-      [426, 156, 7],
-      [426, 218, 8]
+      [426, 34, 5],
+      [426, 100, 6],
+      [426, 190, 7],
+      [426, 280, 8]
     ];
 
     cableHoleCoords.forEach(coord => {
@@ -204,16 +210,18 @@ export default class Demo extends Phaser.Scene {
     this.redrawCableConnections(this);
 
     const knobCoords = [
-      [-312, 120, Math.floor(Math.random() * 5), 0],
-      [-200, 120, Math.floor(Math.random() * 6), 1],
-      [-368, 240, Math.floor(Math.random() * 6), 2],
-      [-256, 240, Math.floor(Math.random() * 6), 3]
+      [-330, 96, 0, 0],
+      [-218, 96, 0, 1],
+      [-330, 241, 0, 2],
+      [-220, 241, 0, 3]
     ];
 
     knobCoords.forEach(coord => {
       const knob = knobGroup
         .create(coord[0], coord[1], "knob")
         .setInteractive();
+
+      knob.setOrigin(0.5, 1);
 
       knob.setData("direction", coord[2]);
       knob.setData("knobNumber", coord[3]);
@@ -242,16 +250,16 @@ export default class Demo extends Phaser.Scene {
       drawerContainer.add(knob);
     });
 
-    const pimple = this.add.sprite(302, 64, "pimple").setInteractive();
+    const pimple = this.add.sprite(300, 64, "pimple1").setInteractive();
 
-    pimple.setData("size", 5);
+    pimple.setData("size", 1);
 
     pimple.on("pointerup", function() {
-      if (this.getData("size") !== 1) {
+      if (this.getData("size") !== 5) {
         squish.play();
-        this.setData("size", this.getData("size") - 1);
+        this.setData("size", this.getData("size") + 1);
 
-        this.setScale(this.getData("size") / 5.0);
+        this.setTexture(`pimple${pimple.getData("size")}`);
       } else {
         squish.play();
         self.increaseBeastState();
@@ -276,7 +284,7 @@ export default class Demo extends Phaser.Scene {
       light.setData("isOn", coord[2]);
 
       if (light.getData("isOn")) {
-        light.setTintFill(0xffaaff);
+        light.setTexture("lighton");
       }
 
       light.on("pointerup", function() {
@@ -285,9 +293,9 @@ export default class Demo extends Phaser.Scene {
 
           if (this.getData("isOn")) {
             lightSound.play();
-            this.setTintFill(0xffaaff);
+            light.setTexture("lighton");
           } else {
-            this.clearTint();
+            light.setTexture("light");
           }
 
           self.checkForLights();
