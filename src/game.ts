@@ -49,7 +49,8 @@ let knobSound,
   squish,
   unplug,
   plug_correct,
-  plug_wrong;
+  plug_wrong,
+  music;
 
 export default class Demo extends Phaser.Scene {
   constructor() {
@@ -146,7 +147,7 @@ export default class Demo extends Phaser.Scene {
       yoyo: true
     });
 
-    let music = this.sound.add("bgm", { loop: true, detune: -10 });
+    music = this.sound.add("bgm", { loop: true, detune: -10 });
     knobSound = this.sound.add("knob");
     knob_correct = this.sound.add("knob_correct");
     lightSound = this.sound.add("light");
@@ -382,6 +383,7 @@ export default class Demo extends Phaser.Scene {
     } else if (currentBeastStage === 3) {
       beast.play("stage2");
     } else if (currentBeastStage === 4) {
+      music.stop();
       beast.play("escape");
     }
 
