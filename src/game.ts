@@ -141,8 +141,7 @@ export default class Demo extends Phaser.Scene {
         { key: "stage1-10", frame: null }
       ],
       frameRate: 3,
-      repeat: -1,
-      yoyo: true
+      repeat: -1
     });
 
     this.anims.create({
