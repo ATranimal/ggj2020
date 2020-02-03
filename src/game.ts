@@ -449,13 +449,13 @@ export default class Demo extends Phaser.Scene {
     } else if (currentBeastStage === 2) {
       beast.play("stage1");
       beast.on("animationcomplete", () => {
-        beast.play("stage2");
+        if (currentBeastStage === 2) beast.play("stage2");
       });
     } else if (currentBeastStage === 3) {
       beast.play("standup");
     } else if (currentBeastStage === 4) {
       music.stop();
-      beast.play("escape").on("animationcomplete", () => {});
+      beast.play("escape");
     }
 
     drawerOpen = !drawerOpen;
