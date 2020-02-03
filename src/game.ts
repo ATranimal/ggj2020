@@ -37,10 +37,10 @@ let correctCableConnections = [
 ];
 
 let correctKnobPositions = [
-  Math.floor(Math.random() * 8),
-  Math.floor(Math.random() * 8),
-  Math.floor(Math.random() * 8),
-  Math.floor(Math.random() * 8)
+  Math.floor(Math.random() * 6),
+  Math.floor(Math.random() * 6),
+  Math.floor(Math.random() * 6),
+  Math.floor(Math.random() * 6)
 ];
 
 let knobSound,
