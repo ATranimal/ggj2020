@@ -84,6 +84,14 @@ export default class Demo extends Phaser.Scene {
       this.load.image(`stage2-${i + 1}`, `assets/stage2/1${i}.png`);
     }
 
+    for (let i = 1; i < 16; i++) {
+      this.load.image(`standup-${i}`, `assets/standup/${i}.png`);
+    }
+
+    for (let i = 1; i < 24; i++) {
+      this.load.image(`escape-${i}`, `assets/escape/${i}.png`);
+    }
+
     this.load.audio("bgm", "sounds/ggj2020.mp3");
     this.load.audio("knob", "sounds/knob.mp3");
     this.load.audio("light", "sounds/light.mp3");
@@ -149,8 +157,61 @@ export default class Demo extends Phaser.Scene {
         { key: "stage2-7", frame: null }
       ],
       frameRate: 3,
-      repeat: -1,
-      yoyo: true
+      repeat: 0
+    });
+
+    this.anims.create({
+      key: "standup",
+      frames: [
+        { key: "standup-1", frame: null },
+        { key: "standup-2", frame: null },
+        { key: "standup-3", frame: null },
+        { key: "standup-4", frame: null },
+        { key: "standup-5", frame: null },
+        { key: "standup-6", frame: null },
+        { key: "standup-7", frame: null },
+        { key: "standup-8", frame: null },
+        { key: "standup-9", frame: null },
+        { key: "standup-10", frame: null },
+        { key: "standup-11", frame: null },
+        { key: "standup-12", frame: null },
+        { key: "standup-13", frame: null },
+        { key: "standup-14", frame: null },
+        { key: "standup-15", frame: null }
+      ],
+      frameRate: 3,
+      repeat: -1
+    });
+
+    this.anims.create({
+      key: "escape",
+      frames: [
+        { key: "escape-1", frame: null },
+        { key: "escape-2", frame: null },
+        { key: "escape-3", frame: null },
+        { key: "escape-4", frame: null },
+        { key: "escape-5", frame: null },
+        { key: "escape-6", frame: null },
+        { key: "escape-7", frame: null },
+        { key: "escape-8", frame: null },
+        { key: "escape-9", frame: null },
+        { key: "escape-10", frame: null },
+        { key: "escape-11", frame: null },
+        { key: "escape-12", frame: null },
+        { key: "escape-13", frame: null },
+        { key: "escape-14", frame: null },
+        { key: "escape-15", frame: null },
+        { key: "escape-16", frame: null },
+        { key: "escape-17", frame: null },
+        { key: "escape-18", frame: null },
+        { key: "escape-19", frame: null },
+        { key: "escape-20", frame: null },
+        { key: "escape-21", frame: null },
+        { key: "escape-22", frame: null },
+        { key: "escape-23", frame: null }
+      ],
+      frameRate: 3,
+      repeat: 0
     });
 
     music = this.sound.add("bgm", { loop: true, detune: -10 });
@@ -250,7 +311,7 @@ export default class Demo extends Phaser.Scene {
       drawerContainer.add(knob);
     });
 
-    const pimple = this.add.sprite(300, 64, "pimple1").setInteractive();
+    const pimple = this.add.sprite(300, 65, "pimple1").setInteractive();
 
     pimple.setData("size", 1);
 
@@ -270,10 +331,10 @@ export default class Demo extends Phaser.Scene {
     drawerContainer.add(pimple);
 
     const lightCoords = [
-      [0, 64, true],
+      [0, 64, false],
       [0, 128, false],
       [0, 192, false],
-      [0, 256, true]
+      [0, 256, false]
     ];
 
     lightCoords.forEach(coord => {
@@ -388,11 +449,14 @@ export default class Demo extends Phaser.Scene {
       beast.play("startup");
     } else if (currentBeastStage === 2) {
       beast.play("stage1");
+      beast.on("animationcomplete", () => {
+        beast.play("stage2");
+      });
     } else if (currentBeastStage === 3) {
-      beast.play("stage2");
+      beast.play("standup");
     } else if (currentBeastStage === 4) {
       music.stop();
-      beast.play("escape");
+      beast.play("escape").on("animationcomplete", () => {});
     }
 
     drawerOpen = !drawerOpen;
